@@ -2,7 +2,7 @@
 
 Para un procesador que posee un sistema de E/S separada, escriba el código C que realice las tareas indicadas en cada apartado para el siguiente registro:
 
-![Descripción de la imagen](/images/ejercicio10.png)
+![10](/images/ejercicio10.png)
 
 a) Modifique C a ‘1’.
 
