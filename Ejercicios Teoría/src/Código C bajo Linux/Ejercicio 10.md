@@ -23,7 +23,8 @@ f) Escriba el valor de la variable “unsigned char c” (que solo puede abarcar
 
 int main() {
 
-    unsigned char dir; // No es un char, valor especulativo para hacer los cálculos, representa un registro
+    #define dir;
+
     unsigned char c;
 
     // Modifique C a 1
@@ -33,28 +34,34 @@ int main() {
     dir = dir & 0xFC;
     
     // Consulte el valor de B. En caso de ser ‘0’, escriba un ‘1’ en G y, en caso de ser ‘1’, escriba un ‘0’ en F. 
-    if ((dir & 0x20) == 0) {
-        dir = dir | 0x01;
+    if ((inb (dir) & 0x20) == 0) {
+        outb (inb (dir) | 0x01, dir)
     } else {
-        dir = dir & 0xFE;
+        outb (inb (dir) & 0xFE, dir)
     }
 
     // Ponga G a ‘1’ si C vale ‘1’ y F vale ‘0’.
-    if (((dir & 0x10) != 0) && ((dir & 0x02) == 0)) {
-        dir = dir | 0x01;
+    if (((inb (dir) & 0x10) != 0) && ((inb (dir) & 0x02) == 0)) {
+        outb (inb (dir) | 0x01, dir)
     }
 
     // Espere a que D valga ‘0’ y, tras ello, copie el contenido de C a E.
-    while ((dir & 0x08) != 0)
+    while ((inb (dir) & 0x08) != 0)
 
-    C = E;
+    if (inb (dir) & 0x10 == 0) {
+        outb (inb (dir) & 0xFB, dir);  
+    } else {
+        outb (inb (dir) | 0x04, dir);
+    }
 
     // Escriba el valor de la variable “unsigned char c” (que solo puede abarcar valores de 0 a 3), en A.
+    /*
     if (c >= 0 && c <= 3) {
-        A = c;
+        outb (inb (dir) )
     } else {
         printf("El valor c no está dentro del rango permitido");
     }
+    */
 
 
     return 0;
