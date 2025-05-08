@@ -1,0 +1,239 @@
+# Ejercicios Resueltos del Laboratoio
+
+## Cositas
+- %d o %i: Especifican un entero con signo.
+- %u     : Especifican un entero sin signo.
+- %p     : Direccion de un puntero u dato.
+- %lld   : Especifica un entero largo (long long). [*]
+- %llu   : Entero largo sin signo (unsigned long long) [*]
+- %s     : Especifica que el parametro es un puntero a un arreglo de caracteres.
+- %c     : Un caracter.
+- %x     : Especifica un valor hexadecimal.
+- %%     : Muestra un literal de porcentaje.
+- %f     : Imprime un float o double.
+
+## Ejercicio 4
+Rellene el siguiente programa en C para que almacene en un vector (v2) los elementos 
+pares de otro vector (v1) y, finalmente, muestre por pantalla el resultado. 
+
+```c
+#include <stdio.h> 
+int main() { 
+
+    int v1[10] = {3, 8, 2, 0, 18, 5, 9, 4, 10, 1}, v2[10], j = 0; 
+
+    for (int i = 0; i < 10; i++) {
+        if (v1[i] % 2 == 0) {
+            v2[j++] = v1[i];
+        }
+    }
+
+    printf("Elementos pares en v2: ");
+    for (int i = 0; i < j; i++) {
+        printf("%d ", v2[i]);
+    }
+ 
+    return 0; 
+}
+```
+
+## Ejercicio 5
+Realice un programa que pida por teclado un número entero sin signo y, posteriormente, 
+lo muestre por pantalla utilizando varios modificadores de tipos sobre la función “printf”: %d (para 
+mostrarlo como entero), %u (para mostrarlo como entero sin signo) y %x (para mostrarlo como 
+hexadecimal). 
+
+```c
+#include <stdio.h>
+
+int main() {
+
+    unsigned int dato;
+    scanf("%u", &dato);
+
+    printf("Como entero: %d\nComo entero sin signo: %u\nComo hexadecimal: %X", dato, dato, dato);
+
+    return 0;
+}
+```
+
+## Ejercicio 6
+Utilice los operadores de desplazamiento de bits que aporta C para, con el dato recibido 
+por teclado del ejercicio anterior, mostrar por pantalla el resultado de desplazar dicho número dos 
+bits a la izquierda y dos bits a la derecha. 
+
+```c
+#include <stdio.h>
+
+int main() {
+    unsigned int dato;
+    unsigned int derecha;
+    unsigned int izquierda;
+    scanf("%u", &dato);
+
+    derecha = dato << 2; // Desplazamiento de 2 bits.
+    izquierda = dato >> 2;
+
+    printf("A la derecha: %u\nA la izquierda: %u", derecha, izquierda);
+}
+```
+
+## Ejercicio 7 
+Realice un programa que lea de teclado un número entero sin signo, y pinte por pantalla este mismo entero, pero mostrando solo la parte baja de la palabra (16 bits menos significativos). 
+
+```c
+#include <stdio.h>
+
+int main() {
+
+    unsigned int dato; 
+    scanf("%u", &dato);
+
+    dato = dato & 0x0F; // Le aplicamos una mascara de 0000 1111, quedándonos con la parte baja
+
+    printf("El resultado es: %x", dato);
+
+    return 0;
+}
+```
+
+## Ejercicio 8
+Repita el ejercicio anterior pero, en este caso, para la parte alta. 
+
+```c
+#include <stdio.h>
+
+int main() {
+
+    unsigned int dato;
+    scanf("%u", &dato);
+
+    dato = dato & 0xF0;
+
+    printf("El resultado es: %X", dato);
+
+    return 0;
+}
+```
+
+## Ejercicio 9
+Combine el ejercicio 7 y el 8, de forma que el programa deberá mostrar en una línea la parte alta y en la siguiente la parte baja del número introducido desde teclado. 
+
+```c
+#include <stdio.h>
+
+int main() {
+
+    unsigned int dato;
+    unsigned int dato2;
+    scanf("%u", &dato);
+
+    dato2 = dato & 0xF0;
+    dato = dato & 0x0F;
+
+    printf("Los resultados son:\n%X\n%X", dato, dato2);
+
+    return 0;
+}
+```
+
+## Ejercicio 10
+Realice un programa que recoja de teclado un número entero sin signo de 8 bits 
+(“unsigned char”, utilizando el identificador “%hhu” de la función ‘scanf’). Seguidamente, modificará 
+el bit número 3 (cuarto bit menos significativo) a ‘1’ y mostrará el resultado por pantalla (utilizando 
+la representación en hexadecimal “%x”). Nota: intente que el número introducido no tenga un ‘1’ en 
+binario en la posición 3 para poder ver los resultados. Se recomienda probar con el número 4 que, 
+tras la modificación, debería salir por pantalla 0xC (12 si lo pinta como número entero).
+
+```c
+#include <stdio.h>
+
+int main() {
+
+    unsigned char dato;
+    scanf("%hhu", &dato);
+
+    dato = dato | 0x8; // Aplicamos la máscara 0000 1000 con una OR
+
+    printf("El resultado es: %X", dato);
+
+    return 0;
+}
+```
+
+## Ejercicio 11
+Realice un programa que recoja de teclado un número entero sin signo de 8 bits 
+(“unsigned char”, utilizando el identificador “%hhu” de la función ‘scanf’)., modificará el bit número 
+5 (sexto bit menos significativo) a ‘0’ y mostrará el resultado por pantalla (utilizando la 
+representación en hexadecimal “%x”). Nota: intente que el número introducido SÍ tenga un ‘1’ en 
+binario en la posición 5 para poder ver los resultados. Se recomienda probar con el número 32 en 
+decimal que, tras la modificación, debería salir por pantalla 0. 
+
+```c
+#include <stdio.h>
+
+int main() {
+
+    unsigned char dato;
+    scanf("%hhu", &dato);
+
+    dato = dato & 0xDF; // Aplicamos las máscara 1101 1111
+
+    printf("El resultado es: %X", dato);
+
+    return 0;
+}
+```
+
+## Ejercicio 12
+Realice un programa que recoja de teclado un número entero sin signo de 8 bits 
+(“unsigned char”, utilizando el identificador “%hhu” de la función ‘scanf’) y que consulte el estado del 
+bit número 2 (tercer bit menos significativo). Si dicho bit tiene el valor ‘0’ deberá ponerlo a ‘1’, y si 
+tiene el valor ‘1’ deberá ponerlo a cero. Muestre el resultado por pantalla utilizando la representación 
+hexadecimal. 
+
+```c
+#include <stdio.h>
+
+int main() {
+
+    unsigned char dato;
+    scanf("%hhu", &dato);
+
+    if ((dato & 0x04) == 0) {
+        dato | 0x04;
+    } else {
+        dato & 0xFB;
+    }
+
+    printf("El resultado es: %X", dato);
+
+    return 0;
+}
+```
+
+## Ejercicio 13
+Realice un programa que recoja continuamente valores enteros sin signo de 8 bits 
+desde teclado hasta que el usuario introduzca uno cuyo bit 7 (octavo bit menos significativo) sea ‘1’. 
+Para ello, programe un bucle “while” en el que continuamente realice llamadas a “scanf”, y que 
+compruebe la condición en cada iteración. Si se cumple, saldrá del buble y finalizará el programa; si 
+no es el caso, seguirá solicitando números al usuario. Nota: un número únicamente con el bit 7 a ‘1’ 
+es el 128 (en decimal); por lo tanto, para que se cumpla la condición en un número de 8 bits sin signo, 
+el valor debe ser superior o igual a 128. 
+
+```c
+#include <stdio.h>
+
+int main() {
+
+    unsigned int dato;
+    scanf("%u", &dato);
+
+    while (dato < 0x80) {
+        scanf("%u", &dato);
+    }
+
+    printf("El dato cuyo bit 7 es 1, es: %X", dato);
+
+    return 0;
+}
