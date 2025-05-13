@@ -237,3 +237,121 @@ int main() {
 
     return 0;
 }
+
+```
+
+## Ejercicio 14
+
+
+### Apartado B
+Realice un programa que, al accionar el interruptor rojo, se enciendan todos los leds del panel2 y se apaguen al desactivar el interruptor.
+
+```assembly
+.config
+    fullaccess on
+    proc multi
+    adddev board "Panel1" 0x50000 {1,BS,gs,BL,rl,GL,0,RS}
+    adddev board "Panel2" 0x50001 {RL,GL,RL,GL,RL,GL,RL,GL}
+    
+.text
+    li x1, 0x50000
+    addi x2, x0, 0xFF
+
+    bucle:
+    lbu x10, 0(x1)
+    andi x10, x10, 0x01
+
+    bne x10, x0, encender
+    sb x0, 1(x1)
+    jal x0, bucle
+    
+    encender: 
+    sb x2, 1(x1)
+    jal x0, bucle
+```
+Mismo código en c:
+```c
+while(1){
+    if (inb (dirPanel1) && 0x01 == 1) {
+        outb (0xFF, dirPanel2);
+    } else {
+        outb (0x00, dirPanel2);
+    }
+}
+```
+
+### Apartado C
+Modifique el código anterior para que se enciendan todos los leds del panel2 si el interruptor rojo está inactivo y el azul activo. Ante cualquier otra combinación, los leds deberán permanecer apagados.
+
+```assembly
+.config
+    fullaccess on
+    proc multi
+    adddev board "Panel1" 0x50000 {1,BS,gs,BL,rl,GL,0,RS}
+    adddev board "Panel2" 0x50001 {RL,GL,RL,GL,RL,GL,RL,GL}
+    
+.text
+
+    li x1, 0x50000
+    addi x2, x0, 0xFF
+    
+    bucle:
+    
+    lbu x10, 0(x1)
+    lbu x11, 0(x1)
+    
+    andi x10, x10, 0x01
+    andi x11, x11, 0x40 
+
+    beq x11, x0, bucle
+    
+    beq x10, x0, encender
+    
+    sb x0, 1(x1)
+    
+    jal x0, bucle
+    
+    encender:
+    sb x2, 1(x1)
+    jal x0, bucle
+```
+
+### Aparatdo D
+Modifique nuevamente el programa anterior para que se activen los leds si, además, el interruptor verde está desactivado (tenga en cuenta que es activo a nivel bajo).
+
+```assembly
+.config
+    fullaccess on
+    proc multi
+    adddev board "Panel1" 0x50000 {1,BS,gs,BL,rl,GL,0,RS}
+    adddev board "Panel2" 0x50001 {RL,GL,RL,GL,RL,GL,RL,GL}
+    
+.text
+
+    li x1, 0x50000
+    addi x2, x0, 0xFF
+    
+    bucle:
+    
+    lbu x10, 0(x1)
+    
+    andi x11, x10, 0x01
+    andi x12, x10, 0x20
+    andi x13, x10, 0x40
+    
+    bne x11, x0, bucle
+    beq x12, x0, bucle
+    bne x13, x0, encender
+    
+    sb x0, 1(x1)
+    
+    jal x0, bucle
+    
+    encender:
+    
+    sb x2, 1(x1)
+    jal x0, bucle
+```
+
+### Apartado G
+Implemente un programa que, al activar el interruptor azul y luego desactivarlo, se enciendan las luces del panel2, pero que, al repetir el proceso sobre el interruptor azul, las luces se apaguen. Este comportamiento deberá repetirse constantemente.
