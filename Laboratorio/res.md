@@ -241,7 +241,14 @@ int main() {
 ```
 
 ## Ejercicio 14
-
+Haciendo uso del VisualRISCV utilice el siguiente fragmento de código para añadir 2 dispositivos board con componentes básicos y realice los siguientes apartados:
+```assembly
+.config
+    fullaccess on
+    proc multi
+    adddev board "Panel1" 0x50000 {1,BS,gs,BL,rl,GL,0,RS}
+    adddev board "Panel2" 0x50001 {RL,GL,RL,GL,RL,GL,RL,GL}
+```
 
 ### Apartado B
 Realice un programa que, al accionar el interruptor rojo, se enciendan todos los leds del panel2 y se apaguen al desactivar el interruptor.
@@ -291,27 +298,22 @@ Modifique el código anterior para que se enciendan todos los leds del panel2 si
     adddev board "Panel2" 0x50001 {RL,GL,RL,GL,RL,GL,RL,GL}
     
 .text
-
     li x1, 0x50000
     addi x2, x0, 0xFF
-    
-    bucle:
-    
-    lbu x10, 0(x1)
-    lbu x11, 0(x1)
-    
-    andi x10, x10, 0x01
-    andi x11, x11, 0x40 
 
-    beq x11, x0, bucle
+    bucle:
+    lbu x10, 0(x1)
     
-    beq x10, x0, encender
+    andi x11, x10, 0x01
+    andi x12, x10, 0x40
     
+    beq x12, x0, bucle
+
+    bne x11, x0, encender
     sb x0, 1(x1)
-    
     jal x0, bucle
     
-    encender:
+    encender: 
     sb x2, 1(x1)
     jal x0, bucle
 ```
@@ -327,31 +329,181 @@ Modifique nuevamente el programa anterior para que se activen los leds si, adem�
     adddev board "Panel2" 0x50001 {RL,GL,RL,GL,RL,GL,RL,GL}
     
 .text
-
     li x1, 0x50000
     addi x2, x0, 0xFF
-    
+
     bucle:
-    
     lbu x10, 0(x1)
     
     andi x11, x10, 0x01
-    andi x12, x10, 0x20
-    andi x13, x10, 0x40
+    andi x12, x10, 0x40
+    andi x13, x10, 0x20
     
-    bne x11, x0, bucle
-    beq x12, x0, bucle
-    bne x13, x0, encender
-    
+    beq x12, x0, apagar
+    beq x13, x0, apagar
+
+    bne x11, x0, encender
     sb x0, 1(x1)
-    
     jal x0, bucle
     
-    encender:
+    encender: 
+    sb x2, 1(x1)
+    jal x0, bucle
     
+    apagar:
+    sb x0, 1(x1)
+    jal x0, bucle
+```
+
+### Apartado E
+Modifique una vez más el código para que interruptor rojo solo actúe si el interruptor azul está activo. En caso de estar desactivado el interruptor azul, el interruptor rojo es ignorado.
+
+`Nota`: Basicamente el planteamiento que he tomado en el apartado B. 
+
+### Apartado F
+Desarrolle un programa que, al activar el interruptor rojo, se enciendan solo los leds rojos del panel2 y que, al desactivarlo, se enciendan solo los leds verdes.
+```assembly
+.config
+    fullaccess on
+    proc multi
+    adddev board "Panel1" 0x50000 {1,BS,gs,BL,rl,GL,0,RS}
+    adddev board "Panel2" 0x50001 {RL,GL,RL,GL,RL,GL,RL,GL}
+    
+.text
+    li x1, 0x50000
+    addi x2, x0, 0xAA
+    addi x3, x0, 0x55
+
+    bucle:
+    lbu x10, 0(x1)
+    andi x10, x10, 0x01
+
+    bne x10, x0, encenderRojos
+    sb x3, 1(x1)
+    jal x0, bucle
+    
+    encenderRojos:
     sb x2, 1(x1)
     jal x0, bucle
 ```
 
 ### Apartado G
 Implemente un programa que, al activar el interruptor azul y luego desactivarlo, se enciendan las luces del panel2, pero que, al repetir el proceso sobre el interruptor azul, las luces se apaguen. Este comportamiento deberá repetirse constantemente.
+```assembly
+.config
+    fullaccess on
+    proc multi
+    adddev board "Panel1" 0x50000 {1,BS,gs,BL,rl,GL,0,RS}
+    adddev board "Panel2" 0x50001 {RL,GL,RL,GL,RL,GL,RL,GL}
+    
+.text
+    li x1, 0x50000
+    addi x2, x0, 0xFF
+
+    bucle:
+    
+    lbu x10, 0(x1)
+    andi x11, x10, 0x40
+
+    bne x11, x0, espera
+    
+    jal x0, bucle
+    
+    espera:
+    lbu x10, 0(x1)
+    andi x10, x10, 0x40
+    beq x10, x0, salida
+    jal x0, espera
+    
+    salida:
+    lbu x16, 1(x1)
+    beq x16, x0, encender
+    jal x0, apagar
+    
+    encender:
+    sb x2, 1(x1)
+    jal x0, bucle
+    
+    apagar:
+    sb x0, 1(x1)
+    jal x0, bucle
+```
+
+### Apartado H
+Escriba un código que encienda el led del pin0 del panel2. A partir de ese momento, cada vez
+que el interruptor rojo cambie de estado debe encenderse la luz inmediatamente a la
+izquierda (pin1) y apagar la anterior. Este proceso se repetirá hasta encender el led del pin
+7, momento en el que pasará nuevamente al pin 0 con el siguiente desplazamiento.
+
+```assembly
+.config
+    fullaccess on
+    proc multi
+    adddev board "Panel1" 0x50000 {1,BS,gs,BL,rl,GL,0,RS}
+    adddev board "Panel2" 0x50001 {RL,GL,RL,GL,RL,GL,RL,GL}
+    
+.text
+    li x1, 0x50000
+    addi x2, x0, 0x01
+    
+    bucle:
+    
+    lbu x10, 0(x1)
+    andi x11, x10, 0x01
+
+    bne x11, x0, espera
+    
+    jal x0, bucle
+    
+    espera:
+    lbu x10, 0(x1)
+    andi x10, x10, 0x01
+    beq x10, x0, salida
+    jal x0, espera
+    
+    salida:
+    sb x2, 1(x1)
+    li x4, 1
+    sll x2, x2, x4
+    jal x0, bucle
+```
+
+### Apartado I
+Realice un programa que encienda el led azul al accionar interruptor azul y lo apague al desactivar el interruptor.
+
+```assembly
+.config
+    fullaccess on
+    proc multi
+    adddev board "Panel1" 0x50000 {1,BS,gs,BL,rl,GL,0,RS}
+    adddev board "Panel2" 0x50001 {RL,GL,RL,GL,RL,GL,RL,GL}
+    
+.text
+    li x1, 0x50000    # Carga la dirección base del Panel1 en x1
+    addi x2, x0, 0x40 # Carga el valor 0x40 en x2 para comparación
+    
+bucle:
+    lbu x11, 0(x1)    # Carga un byte de la dirección almacenada en x1
+    add x12, x0, x11  # Copia el valor de x11 en x12
+    
+    andi x12, x12, 0x40   # Aplica máscara 0x40 para verificar el bit 6
+    
+    beq x12, x2, encender # Si el bit 6 está activo, salta a 'encender'
+    
+    # Si el bit 6 no está activo, apagar
+    add x13, x11, x0      # Copia el valor de x11 en x13
+    addi x13, x13, 0      # Este comando es redundante
+    
+    andi x13, x11, 0xEF   # Aplica máscara 0xEF para apagar el bit 4
+    sb x13, 0(x1)         # Guarda el resultado en la dirección de x1
+    jal x0, bucle         # Salta al inicio del bucle
+    
+encender:
+    lbu x11, 0(x1)        # Carga nuevamente un byte de la dirección en x1
+    add x12, x0, x11      # Copia el valor de x11 en x12
+    ori x13, x12, 0x10    # Activa el bit 4 usando OR con 0x10
+    sb x13, 0(x1)         # Guarda el resultado en la dirección de x1
+    jal x0, bucle         # Salta al inicio del bucle
+```
+
+Nota: me he vuelto loco y lo he tenido que comentar, usa las `ori` para guardar el dato y cambiar los registros en lugar de add, de lo contrario no va a funcionar correctamente y va a causar errores dificiles de corregir.
